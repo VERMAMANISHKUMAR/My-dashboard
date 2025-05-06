@@ -4,7 +4,7 @@ import { fetchCompanyData } from '../api/mockApi';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [companyData, setCompanyData] = React.useState(null);
+  const [companyData, setCompanyData] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
 
@@ -16,11 +16,11 @@ const Dashboard = () => {
     }
 
     fetchCompanyData()
-      .then(data => {
+      .then((data) => {
         setCompanyData(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
@@ -34,7 +34,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-xl text-gray-600">Loading...</div>
+        <div className="text-xl text-gray-600 animate-pulse">Loading...</div>
       </div>
     );
   }
@@ -42,40 +42,68 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-red-500 text-xl">{error}</div>
+        <div className="text-red-600 text-xl font-semibold">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-blue-700 text-white p-4 flex justify-between items-center shadow-md">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <nav className="bg-blue-800 text-white p-4 flex justify-between items-center shadow-lg">
+        <h1 className="text-xl font-bold">Admin Dashboard</h1>
         <button
           onClick={handleLogout}
-          className="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200"
+          className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-medium transition duration-200"
         >
           Logout
         </button>
       </nav>
-      <div className="container mx-auto p-6">
-        <h2 className="text-3xl font-bold mb-8 text-gray-800">Company Overview</h2>
-        {companyData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-              <h3 className="text-xl font-semibold mb-4 text-gray-700">Company Information</h3>
-              <p className="text-gray-600"><strong>Name:</strong> {companyData.companyName}</p>
-              <p className="text-gray-600"><strong>Description:</strong> {companyData.description}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-              <h3 className="text-xl font-semibold mb-4 text-gray-700">Sales Metrics</h3>
-              <p className="text-gray-600"><strong>Total Sales:</strong> {companyData.numberOfSales.toLocaleString()}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-              <h3 className="text-xl font-semibold mb-4 text-gray-700">Revenue Metrics</h3>
-              <p className="text-gray-600"><strong>Last Month:</strong> ${companyData.revenueLastMonth.toLocaleString()}</p>
-              <p className="text-gray-600"><strong>Last Year:</strong> ${companyData.revenueLastYear.toLocaleString()}</p>
-            </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <h2 className="text-4xl font-bold text-gray-800 mb-8">Company Overview</h2>
+
+        {companyData.length > 0 ? (
+          <div className="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+                <tr>
+                  <th className="px-6 py-4 text-left">Company Name</th>
+                  <th className="px-6 py-4 text-left">Description</th>
+                  <th className="px-6 py-4 text-left">Total Sales</th>
+                  <th className="px-6 py-4 text-left">Revenue Last Month</th>
+                  <th className="px-6 py-4 text-left">Revenue Last Year</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {companyData.map((company, index) => (
+                  <tr key={index} className="hover:bg-blue-50 transition">
+                    <td className="px-6 py-4 font-medium text-gray-900">{company.companyName || 'N/A'}</td>
+                    <td className="px-6 py-4 text-gray-600">{company.description || 'N/A'}</td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {typeof company.numberOfSales === 'number'
+                        ? company.numberOfSales.toLocaleString()
+                        : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-green-600 font-semibold">
+                      {typeof company.revenueLastMonth === 'number'
+                        ? `$${company.revenueLastMonth.toLocaleString()}`
+                        : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-green-600 font-semibold">
+                      {typeof company.revenueLastYear === 'number'
+                        ? `$${company.revenueLastYear.toLocaleString()}`
+                        : 'N/A'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="bg-white p-6 rounded-lg shadow text-gray-500 text-center">
+            No company data available.
           </div>
         )}
       </div>
